@@ -1,12 +1,20 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:sangeorzbai_turistic/utils/map_utils.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class TuristicLocationPage extends StatefulWidget {
   final String locationTitle;
-  const TuristicLocationPage({Key? key, required this.locationTitle})
+  final List data;
+
+  const TuristicLocationPage(
+      {Key? key, required this.locationTitle, required this.data})
       : super(key: key);
 
   @override
@@ -14,46 +22,124 @@ class TuristicLocationPage extends StatefulWidget {
 }
 
 class _TuristicLocationPageState extends State<TuristicLocationPage> {
-  Future fetchAlbum() {
-    return http
-        .get(Uri.parse('https://sangeorzbai.ro/wp-json/wp/v2/pages?page=4'));
+  var pageData = null;
+  bool isFavourite = false;
+
+  fetchPageData() async {
+    for (var page in widget.data) {
+      if (page["title"]["rendered"] == widget.locationTitle) {
+        setState(() {
+          pageData = page;
+        });
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    fetchPageData();
+    Future.delayed(Duration.zero, () async {
+      final prefs = await SharedPreferences.getInstance();
+      final bool isFavourite =
+          prefs.getString(pageData["title"]["rendered"]) == null ? false : true;
+
+      setState(() {
+        this.isFavourite = isFavourite;
+      });
+    });
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    fetchAlbum().then((value) => print(value.body));
-    return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.locationTitle),
-        ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.all(8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Image.network(
-                      'https://sangeorzbai.ro/wp-content/uploads/2021/06/IMG_1135-1170x780.jpg'),
-                  SizedBox(height: 15),
-                  Text(
-                      'Este din punct de vedere juridic, secție a Complexului Muzeal Bistrița-Năsăud, clasificat ca fiind instituție de importanță județeană.'),
-                  SizedBox(height: 15),
-                  Text(
-                      'Colecția de bază o constituie lucrările de artă contemporană – sculptură (lemn, marmură, metal), dar și elemente de pictură, fotografie, grafică, ceramică, porțelan și altele, ale 135 de artiști invitați la toate edițiile Simpozionului de Artă Contemporană „ART”. Piesele etnografice existente permit vizitatorilor comunicarea între trecut și prezent. Scopul declarat al muzeului este de a surprinde și transmite spiritualitatea zonei prin artă, refuzând să accepte ideea de muzeu ca spațiu – adăpost pentru bunuri mobile ce aparțin trecutului. Desfășurarea Muzeului nu oferă decât repere, nu informație gata prelucrată, astfel că produsul finit este în sine un produs artistic.'),
-                  SizedBox(height: 15),
-                  Text(
-                      'Deși este un muzeu mic, instituția se dorește a fi un centru de informare în arta plastică contemporană, astfel că sunt puse la dispoziția publicului o arhivă audiovizuală conținând fotografii, clișee, filme foto, casete audio și video, CD-uri, în majoritate având legătură cu Simpozioanele organizate și o bibliotecă formată în special din albume de artă. Organizat în forma actuală pe parcursul anului 2006. Muzeul a fost inaugurat în data de 5 mai 2007.'),
-                  SizedBox(height: 15),
-                  ElevatedButton(
-                      onPressed: () {
-                        MapUtils.openMap(47.2, -122.342);
-                      },
-                      child: Text('Vezi pe Hartă'))
-                ],
-              ),
+    return Theme(
+      data: ThemeData.dark(),
+      child: Scaffold(
+          appBar: AppBar(
+            actions: [
+              IconButton(
+                  onPressed: () async {
+                    setState(() {
+                      isFavourite = !isFavourite;
+                    });
+                    final prefs = await SharedPreferences.getInstance();
+                    if (isFavourite) {
+                      prefs.setString(
+                          pageData["title"]["rendered"], pageData["id"].toString());
+                    } else {
+                      prefs.remove(pageData["title"]["rendered"]);
+                    }
+                  },
+                  icon: Icon(
+                    isFavourite ? Icons.favorite : Icons.favorite_border,
+                    color: Color.fromARGB(203, 255, 1, 1),
+                  ))
+            ],
+            centerTitle: true,
+            title: Image(
+              image: AssetImage('images/websiteIcon.png'),
+              width: 130,
             ),
           ),
-        ));
+          body: SafeArea(
+            child: SingleChildScrollView(
+              child: Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10, bottom: 15),
+                        child: Center(
+                            child: Text(
+                          widget.locationTitle,
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        )),
+                      ),
+                      if (pageData['yoast_head_json']['og_image'] != null)
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: CachedNetworkImage(
+                              key: UniqueKey(),
+                              placeholder: (context, url) => Container(
+                                    height: 250,
+                                    color: Colors.black12,
+                                  ),
+                              imageUrl: pageData['yoast_head_json']['og_image']
+                                  [0]["url"]),
+                        ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Html(
+                        style: {
+                          "p": Style(
+                            lineHeight: LineHeight.number(1.3),
+                          )
+                        },
+                        data: pageData['content']['rendered'],
+                        onLinkTap: (String? url, RenderContext context,
+                            Map<String, String> attributes, element) {
+                          if (url != null) launchUrl(Uri.parse(url));
+                        },
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      if (pageData['googleMapsLink'] != "")
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: ElevatedButton(
+                              onPressed: () {
+                                MapUtils.openMap(pageData['googleMapsLink']);
+                              },
+                              child: Text('Vezi pe Hartă')),
+                        )
+                    ],
+                  )),
+            ),
+          )),
+    );
   }
 }

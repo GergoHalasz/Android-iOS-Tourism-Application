@@ -1,27 +1,69 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:sangeorzbai_turistic/screens/FavouritesPage.dart';
+import 'package:sangeorzbai_turistic/screens/TuristicLocationPage.dart';
 import 'package:sangeorzbai_turistic/screens/TuristicPage.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
+import 'package:diacritic/diacritic.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  bool result = await InternetConnectionChecker().hasConnection;
+  List datas = [];
+  if (result) {
+    datas = await initialization();
+    datas = datas.map((data) {
+      if (data['title']['rendered'] == "Haus Park Pub &#038; Bistro") {
+        data['title']['rendered'] = "Haus Park Pub & Bistro";
+      } else if (data['title']['rendered'] == "El&#038;Ea magazin de îmbrăcăminte") {
+        data['title']['rendered'] = "El&Ea magazin de îmbrăcăminte";
+      } else if (data['title']['rendered'] == "RCS&#038;RDS") {
+        data['title']['rendered'] = "RCS&RDS";
+      } 
+      return data;
+    }).toList();
+  }
+  FlutterNativeSplash.remove();
+  runApp(MyApp(
+    data: datas,
+  ));
+}
+
+Future initialization() async {
+  var allData = await http.get(
+      Uri.parse('https://sangeorzbai.ro/wp-json/wp/v2/pages?per_page=100'));
+  return jsonDecode(allData.body);
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  final List data;
+  const MyApp({Key? key, required this.data}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    print(data);
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Sangeorzbai Turistic App'),
+      home: MyHomePage(
+        title: 'Sangeorzbai Turistic App',
+        data: data,
+      ),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+  final List data;
+  const MyHomePage({Key? key, required this.title, required this.data})
+      : super(key: key);
 
   final String title;
 
@@ -30,43 +72,452 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<String> turisticList = [
-    'Obiective culturale',
-    'Obiective de alimentație publică',
-    'Obiective de primire turistică (cazare)',
-    'Obiective turistice',
-    'Puncte de interes'
+  List<Map> imagesWithNames = [
+    {
+      "title": "Centrul Cultural Iustin Sohorca",
+      "imageLocation": 'images/asd1.jpeg'
+    },
+    {"title": "Muzeul de Artă Comparată", "imageLocation": 'images/asd2.jpeg'},
+    {
+      "title": "Ansamblul Monumental „Ferestre”",
+      "imageLocation": 'images/asd3.jpeg'
+    },
+    {
+      "title": "Centrul Cultural Iustin Sohorca",
+      "imageLocation": 'images/asd4.jpeg'
+    },
+    {
+      "title": "Muzeul de Artă Comparată",
+      "imageLocation": 'images/locationImage.jpeg'
+    },
   ];
+  int scrollIndex = 0;
+  List<Map> turisticList = [
+    {
+      "title": 'Obiective culturale',
+      "id": 2328,
+      "icon": Icon(
+        Icons.museum,
+      ),
+    },
+    {
+      "title": 'Obiective de alimentație publică',
+      "id": 2326,
+      "icon": Icon(
+        Icons.restaurant,
+      ),
+    },
+    {
+      "title": 'Obiective de primire turistică (cazare)',
+      "id": 2323,
+      "icon": Icon(
+        Icons.home,
+      ),
+    },
+    {
+      "title": 'Obiective turistice',
+      "id": 2321,
+      "icon": Icon(
+        Icons.map,
+      ),
+    },
+    {
+      "title": 'Puncte de interes',
+      "id": 2506,
+      "icon": Icon(
+        Icons.home_work,
+      ),
+    }
+  ];
+
+  Future<void> _launchUrl(type) async {
+    final Uri _url = Uri.parse(type == 'contact'
+        ? 'https://sangeorzbai.ro/contact/'
+        : 'https://sangeorzbai.ro/articole/noutati/evenimente/');
+    if (!await launchUrl(_url)) {
+      throw 'Could not launch $_url';
+    }
+  }
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      bool result = await InternetConnectionChecker().hasConnection;
+      if (!result) {
+        showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text('Eroare'),
+                content: Text(
+                    'Nu există conexiune la internet. Activati internetul si deschideti apliactia iarasi.'),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text('Închide'))
+                ],
+              );
+            });
+      }
+    });
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ...turisticList
-              .map((turistic) => ListTile(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              TuristicPage(turisticTitle: turistic),
-                        ),
-                      );
-                    },
-                    leading: Icon(
-                      Icons.location_on,
-                      color: Color(0xff17669a),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark(),
+      home: Scaffold(
+          appBar: AppBar(
+            actions: [
+              IconButton(
+                  onPressed: () {
+                    showSearch(
+                        context: context,
+                        delegate: MySearchDelegate(widget.data));
+                  },
+                  icon: Icon(Icons.search)),
+            ],
+            centerTitle: true,
+            title: Image(
+              image: AssetImage('images/websiteIcon.png'),
+              width: 130,
+            ),
+          ),
+          drawer: Drawer(
+            child: SafeArea(
+              top: false,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(20),
+                    height: 200,
+                    color: Colors.grey[800],
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 25),
+                      child: Image(image: AssetImage('images/websiteIcon.png')),
                     ),
-                    title: Text(turistic),
-                  ))
-              .toList(),
-        ],
+                  ),
+                  ...turisticList
+                      .map((turistic) => Column(
+                            children: [
+                              ListTile(
+                                visualDensity: VisualDensity(vertical: -2),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => TuristicPage(
+                                          turisticTitle: turistic["title"],
+                                          turisticId: turistic['id'],
+                                          data: widget.data),
+                                    ),
+                                  );
+                                },
+                                leading: turistic['icon'],
+                                title: Text(turistic["title"]),
+                              ),
+                              Divider(
+                                height: 1,
+                                thickness: 0.7,
+                              )
+                            ],
+                          ))
+                      .toList(),
+                  Expanded(
+                      child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Divider(
+                                height: 1,
+                                thickness: 0.7,
+                              ),
+                              ListTile(
+                                visualDensity: VisualDensity(vertical: -2),
+                                title: Text('Favorite'),
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => FavouritesPage(
+                                            data: widget.data,
+                                          )),
+                                ),
+                                leading: Padding(
+                                  padding: const EdgeInsets.only(left: 8),
+                                  child: Icon(
+                                    Icons.favorite,
+                                  ),
+                                ),
+                              ),
+                              Divider(
+                                height: 1,
+                                thickness: 0.7,
+                              ),
+                              ListTile(
+                                  visualDensity: VisualDensity(vertical: -2),
+                                  title: Text('Evenimente'),
+                                  onTap: () => _launchUrl('evenimente'),
+                                  leading: Padding(
+                                    padding: const EdgeInsets.only(left: 8),
+                                    child: Icon(
+                                      Icons.event,
+                                    ),
+                                  ),
+                                  trailing: Transform.rotate(
+                                    angle: 30.65,
+                                    child: Icon(
+                                      Icons.arrow_forward,
+                                      size: 20,
+                                    ),
+                                  )),
+                              Divider(
+                                height: 1,
+                                thickness: 0.7,
+                              ),
+                              ListTile(
+                                  visualDensity: VisualDensity(vertical: -2),
+                                  title: Text('Contact'),
+                                  onTap: () => _launchUrl('contact'),
+                                  leading: Padding(
+                                    padding: const EdgeInsets.only(left: 8),
+                                    child: Icon(
+                                      Icons.contact_mail,
+                                    ),
+                                  ),
+                                  trailing: Transform.rotate(
+                                    angle: 30.65,
+                                    child: Icon(
+                                      Icons.arrow_forward,
+                                      size: 20,
+                                    ),
+                                  )),
+                              Divider(
+                                height: 1,
+                                thickness: 0.7,
+                              ),
+                            ],
+                          ))),
+                ],
+              ),
+            ),
+          ),
+          body: SingleChildScrollView(
+            child: Column(
+              children: [
+                ImageSlideshow(
+                  /// Width of the [ImageSlideshow].
+                  width: double.infinity,
+
+                  /// Height of the [ImageSlideshow].
+                  height: 230,
+
+                  /// The page to show when first creating the [ImageSlideshow].
+                  initialPage: 0,
+
+                  /// The color to paint the indicator.
+                  indicatorColor: Colors.blue,
+
+                  /// The color to paint behind th indicator.
+                  indicatorBackgroundColor: Colors.grey,
+
+                  /// The widgets to display in the [ImageSlideshow].
+                  /// Add the sample image file into the images folder
+                  children: [
+                    ...imagesWithNames.map((imageWithName) {
+                      return Image.asset(
+                        imageWithName['imageLocation'],
+                        fit: BoxFit.cover,
+                      );
+                    }).toList(),
+                  ],
+
+                  /// Called whenever the page in the center of the viewport changes.
+                  onPageChanged: (value) {
+                    setState(() {
+                      scrollIndex = value;
+                    });
+                  },
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    imagesWithNames[scrollIndex]["title"],
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+                Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                              text:
+                                  'Pentru a vedea categoriile, apăsați iconița'),
+                          WidgetSpan(
+                              child: Padding(
+                            padding: const EdgeInsets.only(left: 4, right: 4),
+                            child: Icon(
+                              Icons.menu,
+                              size: 19,
+                            ),
+                          )),
+                          TextSpan(
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                              text:
+                                  'din stângă sus si selectați categoria dorită.'),
+                        ],
+                      ),
+                    )),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'Despre noi',
+                    style: TextStyle(fontSize: 24),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Text(
+                    'Sângeorz-Băi este un oraș cu drepturi depline de stațiune, aflat în județul Bistrița-Năsăud, situat la poalele munților Rodnei și înzestrat cu cele mai frumoase și încântătoare daruri de la natură, cu o poveste frumoasă despre exploatarea și valorificarea turistică, balneară si culturală a resurselor în trecut care încă se reflectă în viața de zi cu zi și care se luptă să înflorească cu fiecare primăvară care vine. O poveste care trebuie actualizată, armonizată și scrisă prin combinația perfectă, specifică locului, dintre aer-apă-natură.',
+                    style: TextStyle(height: 1.8),
+                  ),
+                )
+              ],
+            ),
+          )),
+    );
+  }
+}
+
+extension DiacriticsAwareString on String {
+  static const diacritics = 'ÂĂâăÎîȘșȚț';
+  static const nonDiacritics = 'AAaaIiSsTt';
+
+  String get withoutDiacriticalMarks => this.splitMapJoin('',
+      onNonMatch: (char) => char.isNotEmpty && diacritics.contains(char)
+          ? nonDiacritics[diacritics.indexOf(char)]
+          : char);
+}
+
+class MySearchDelegate extends SearchDelegate {
+  late List datas;
+  late List searchResult;
+
+  MySearchDelegate(datas) {
+    this.datas = datas;
+    searchResult = this.datas.where((data) {
+      return data['parent'] == 2506 ||
+          data['parent'] == 2321 ||
+          data['parent'] == 2323 ||
+          data['parent'] == 2326 ||
+          data['parent'] == 2328;
+    }).toList();
+  }
+
+  @override
+  ThemeData appBarTheme(BuildContext context) {
+    assert(context != null);
+    final ThemeData theme = ThemeData.dark();
+    assert(theme != null);
+    return theme;
+  }
+
+  @override
+  Widget? buildLeading(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.arrow_back),
+      onPressed: () {
+        close(context, null);
+      },
+    );
+  }
+
+  @override
+  List<Widget>? buildActions(BuildContext context) {
+    // TODO: implement buildActions
+    return [
+      IconButton(
+          onPressed: () {
+            query = '';
+          },
+          icon: Icon(Icons.clear))
+    ];
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    // TODO: implement buildResults
+    return Center(
+      child: Text(
+        query,
+        style: TextStyle(fontSize: 64),
       ),
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    List<String> suggestions = searchResult
+        .where((searchResult) {
+          final result =
+              removeDiacritics(searchResult['title']['rendered'].toLowerCase());
+          final input = removeDiacritics(query.toLowerCase());
+          var keywords = null;
+          if (searchResult['keywords'] != null)
+            keywords = searchResult['keywords'].split(',');
+
+          if (input.contains('cultura')) {
+            return searchResult['parent'] == 2328;
+          } else if (keywords != null && keywords.contains(input)) {
+            return true;
+          } else if (input.contains('traseu') ||
+              input.contains('traseu turistic')) {
+            return searchResult['parent'] == 2321;
+          } else if (input.contains('cazare') || input.contains('pensiune')) {
+            return searchResult['parent'] == 2323;
+          }
+          return result.contains(input);
+        })
+        .map((e) => e['title']['rendered'] as String)
+        .toList();
+
+    return Scrollbar(
+      thumbVisibility: true,
+      child: ListView.builder(
+          itemCount: suggestions.length,
+          itemBuilder: ((context, index) {
+            final suggestion = suggestions[index];
+
+            return Column(
+              children: [
+                ListTile(
+                  title: Text(suggestion),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TuristicLocationPage(
+                          locationTitle: suggestion,
+                          data: datas,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                Divider(
+                  height: 0.1,
+                ),
+              ],
+            );
+          })),
     );
   }
 }
