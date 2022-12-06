@@ -13,21 +13,23 @@ import 'package:diacritic/diacritic.dart';
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  bool result = await InternetConnectionChecker().hasConnection;
   List datas = [];
-  if (result) {
+  bool result = await InternetConnectionChecker().hasConnection;
+  if (result == true) {
     datas = await initialization();
     datas = datas.map((data) {
       if (data['title']['rendered'] == "Haus Park Pub &#038; Bistro") {
         data['title']['rendered'] = "Haus Park Pub & Bistro";
-      } else if (data['title']['rendered'] == "El&#038;Ea magazin de îmbrăcăminte") {
+      } else if (data['title']['rendered'] ==
+          "El&#038;Ea magazin de îmbrăcăminte") {
         data['title']['rendered'] = "El&Ea magazin de îmbrăcăminte";
       } else if (data['title']['rendered'] == "RCS&#038;RDS") {
         data['title']['rendered'] = "RCS&RDS";
-      } 
+      }
       return data;
     }).toList();
   }
+
   FlutterNativeSplash.remove();
   runApp(MyApp(
     data: datas,
@@ -72,25 +74,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<Map> imagesWithNames = [
-    {
-      "title": "Centrul Cultural Iustin Sohorca",
-      "imageLocation": 'images/asd1.jpeg'
-    },
-    {"title": "Muzeul de Artă Comparată", "imageLocation": 'images/asd2.jpeg'},
-    {
-      "title": "Ansamblul Monumental „Ferestre”",
-      "imageLocation": 'images/asd3.jpeg'
-    },
-    {
-      "title": "Centrul Cultural Iustin Sohorca",
-      "imageLocation": 'images/asd4.jpeg'
-    },
-    {
-      "title": "Muzeul de Artă Comparată",
-      "imageLocation": 'images/locationImage.jpeg'
-    },
-  ];
+  Image image1 = Image.asset('images/asd1.jpg', fit: BoxFit.cover);
+  Image image2 = Image.asset('images/asd2.jpg', fit: BoxFit.cover);
+  Image image3 = Image.asset('images/asd3.jpg', fit: BoxFit.cover);
+  Image image4 = Image.asset('images/asd4.jpg', fit: BoxFit.cover);
+  Image image5 = Image.asset('images/asd5.jpg', fit: BoxFit.cover);
+  Image image6 = Image.asset('images/asd6.jpg', fit: BoxFit.cover);
+
+  List<Image> imagesWithNames = [];
   int scrollIndex = 0;
   List<Map> turisticList = [
     {
@@ -150,7 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
               return AlertDialog(
                 title: Text('Eroare'),
                 content: Text(
-                    'Nu există conexiune la internet. Activati internetul si deschideti apliactia iarasi.'),
+                    'Nu există conexiune la internet. Este necesară conexiunea la internet pentru a putea accesa aplicația.'),
                 actions: [
                   TextButton(
                       onPressed: () {
@@ -167,7 +158,20 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    imagesWithNames = [image1, image2, image3, image4, image5, image6];
+    precacheImage(image1.image, context);
+    precacheImage(image2.image, context);
+    precacheImage(image3.image, context);
+    precacheImage(image4.image, context);
+    precacheImage(image5.image, context);
+    precacheImage(image6.image, context);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark(),
@@ -183,9 +187,20 @@ class _MyHomePageState extends State<MyHomePage> {
                   icon: Icon(Icons.search)),
             ],
             centerTitle: true,
-            title: Image(
-              image: AssetImage('images/websiteIcon.png'),
-              width: 130,
+            title: Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image(
+                    image: AssetImage('images/websiteIcon.png'),
+                    width: 130,
+                  ),
+                  Image(
+                    image: AssetImage('images/logo-sangeorzbai.png'),
+                    width: 50,
+                  ),
+                ],
+              ),
             ),
           ),
           drawer: Drawer(
@@ -331,26 +346,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   /// Add the sample image file into the images folder
                   children: [
                     ...imagesWithNames.map((imageWithName) {
-                      return Image.asset(
-                        imageWithName['imageLocation'],
-                        fit: BoxFit.cover,
-                      );
+                      return imageWithName;
                     }).toList(),
                   ],
 
                   /// Called whenever the page in the center of the viewport changes.
-                  onPageChanged: (value) {
-                    setState(() {
-                      scrollIndex = value;
-                    });
-                  },
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    imagesWithNames[scrollIndex]["title"],
-                    style: TextStyle(fontSize: 16),
-                  ),
                 ),
                 Padding(
                     padding: const EdgeInsets.all(12.0),
@@ -389,6 +389,44 @@ class _MyHomePageState extends State<MyHomePage> {
                     'Sângeorz-Băi este un oraș cu drepturi depline de stațiune, aflat în județul Bistrița-Năsăud, situat la poalele munților Rodnei și înzestrat cu cele mai frumoase și încântătoare daruri de la natură, cu o poveste frumoasă despre exploatarea și valorificarea turistică, balneară si culturală a resurselor în trecut care încă se reflectă în viața de zi cu zi și care se luptă să înflorească cu fiecare primăvară care vine. O poveste care trebuie actualizată, armonizată și scrisă prin combinația perfectă, specifică locului, dintre aer-apă-natură.',
                     style: TextStyle(height: 1.8),
                   ),
+                ),
+                Align(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 4, left: 12),
+                    child: Row(
+                      children: [
+                        Text('Site-ul proiectului: '),
+                        InkWell(
+                          child: Text(
+                            'www.sangeorzbai.ro',
+                            style: TextStyle(color: Colors.blue),
+                          ),
+                          onTap: () => launchUrl(
+                              Uri.parse('https://www.sangeorzbai.ro')),
+                        )
+                      ],
+                    ),
+                  ),
+                  alignment: Alignment.bottomLeft,
+                ),
+                Align(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 6, left: 12),
+                    child: Row(
+                      children: [
+                        Text('Site-ul primăriei: '),
+                        InkWell(
+                          child: Text(
+                            'www.sangeorz-bai.ro',
+                            style: TextStyle(color: Colors.blue),
+                          ),
+                          onTap: () => launchUrl(
+                              Uri.parse('https://www.sangeorz-bai.ro')),
+                        )
+                      ],
+                    ),
+                  ),
+                  alignment: Alignment.bottomLeft,
                 )
               ],
             ),

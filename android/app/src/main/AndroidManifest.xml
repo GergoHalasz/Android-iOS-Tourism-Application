@@ -1,7 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.sangeorzbai_turistic">
+    package="com.sangeorzbai.turistic">
+    <uses-permission android:name="android.permission.INTERNET" />
    <application
-        android:label="Sangeorzbai Turistic"
+        android:label="Sangeorz-Bai Turistic"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
