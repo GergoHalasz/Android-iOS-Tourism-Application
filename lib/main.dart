@@ -16,7 +16,9 @@ void main() async {
   List datas = [];
   bool result = await InternetConnectionChecker().hasConnection;
   if (result == true) {
-    datas = await initialization();
+    await Future.wait([initialization(), Future.delayed(Duration(seconds: 2))])
+        .then((values) => datas = values[0]);
+
     datas = datas.map((data) {
       if (data['title']['rendered'] == "Haus Park Pub &#038; Bistro") {
         data['title']['rendered'] = "Haus Park Pub & Bistro";
@@ -50,6 +52,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     print(data);
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,

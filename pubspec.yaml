@@ -36,7 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   maps_launcher: ^2.0.1
   http: ^0.13.5
-  flutter_native_splash: ^2.2.12
+  flutter_native_splash: ^2.2.16
   flutter_html: ^3.0.0-alpha.6
   cached_network_image: ^3.2.2
   google_fonts: ^3.0.1
@@ -65,6 +65,9 @@ flutter_icons:
 flutter_native_splash:
   color: "#FFFFFF"
   image: images/splashScreenIcon.png
+  android_12: 
+    image: images/appIcon copy.png
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
