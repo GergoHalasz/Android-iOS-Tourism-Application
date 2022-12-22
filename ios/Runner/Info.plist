@@ -32,6 +32,9 @@
 	<string>Main</string>
 	<key>UIStatusBarHidden</key>
 	<false/>
+	<array>
+    	<string>UIInterfaceOrientationPortrait</string>
+	</array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:sangeorzbai_turistic/screens/FavouritesPage.dart';
@@ -33,9 +34,12 @@ void main() async {
   }
 
   FlutterNativeSplash.remove();
-  runApp(MyApp(
-    data: datas,
-  ));
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
+      .then((_) {
+    runApp(new MyApp(
+      data: datas,
+    ));
+  });
 }
 
 Future initialization() async {

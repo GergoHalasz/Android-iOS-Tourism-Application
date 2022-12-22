@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -64,8 +67,8 @@ class _TuristicLocationPageState extends State<TuristicLocationPage> {
                     });
                     final prefs = await SharedPreferences.getInstance();
                     if (isFavourite) {
-                      prefs.setString(
-                          pageData["title"]["rendered"], pageData["id"].toString());
+                      prefs.setString(pageData["title"]["rendered"],
+                          pageData["id"].toString());
                     } else {
                       prefs.remove(pageData["title"]["rendered"]);
                     }
@@ -131,8 +134,51 @@ class _TuristicLocationPageState extends State<TuristicLocationPage> {
                         Padding(
                           padding: const EdgeInsets.only(left: 8),
                           child: ElevatedButton(
-                              onPressed: () {
-                                MapUtils.openMap(pageData['googleMapsLink']);
+                              onPressed: () async {
+                                if (Platform.isAndroid)
+                                  MapUtils.openMap(pageData['googleMapsLink']);
+                                else {
+                                  final prefs =
+                                      await SharedPreferences.getInstance();
+                                  String? mapType = prefs.getString('mapType');
+                                  if (mapType == null) {
+                                    showCupertinoDialog(
+                                        barrierDismissible: true,
+                                        context: context,
+                                        builder: (context) =>
+                                            CupertinoAlertDialog(
+                                              title: Text('Alegeti aplicatia care va afisa locatia.'),
+                                              actions: [
+                                                CupertinoDialogAction(
+                                                    child: Text('Google Maps'),
+                                                    onPressed: () {
+                                                      prefs.setString(
+                                                          'mapType', 'google');
+                                                      MapUtils.openMap(pageData[
+                                                          'googleMapsLink']);
+                                                      Navigator.pop(context);
+                                                    }),
+                                                CupertinoDialogAction(
+                                                    child: Text('Apple Maps'),
+                                                    onPressed: () {
+                                                      prefs.setString(
+                                                          'mapType', 'apple');
+                                                      MapUtils.openMap(pageData[
+                                                          'appleMapsLink']);
+                                                      Navigator.pop(context);
+                                                    })
+                                              ],
+                                            ));
+                                  } else {
+                                    if (mapType == 'google') {
+                                      MapUtils.openMap(
+                                          pageData['googleMapsLink']);
+                                    } else {
+                                      MapUtils.openMap(
+                                          pageData['appleMapsLink']);
+                                    }
+                                  }
+                                }
                               },
                               child: Text('Vezi pe Hartă')),
                         )
