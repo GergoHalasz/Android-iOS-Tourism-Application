@@ -130,7 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _launchUrl(type) async {
     final Uri _url = Uri.parse(type == 'contact'
-        ? 'https://sangeorzbai.ro/contact/'
+        ? 'https://www.sangeorz-bai.ro/#SITE_FOOTER'
         : 'https://sangeorzbai.ro/articole/noutati/evenimente/');
     if (!await launchUrl(_url)) {
       throw 'Could not launch $_url';
