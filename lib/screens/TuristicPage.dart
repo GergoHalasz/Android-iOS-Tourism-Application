@@ -88,7 +88,9 @@ class _TuristicPageState extends State<TuristicPage> {
                                     ),
                                   );
                                 },
+                                leading: Icon(Icons.location_on),
                                 title: Text(location['title']),
+                                minLeadingWidth : 16,
                               ),
                               Divider(
                                 height: 0.1,
