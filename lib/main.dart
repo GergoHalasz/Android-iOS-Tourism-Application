@@ -499,13 +499,57 @@ class MySearchDelegate extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    // TODO: implement buildResults
-    return Center(
-      child: Text(
-        query,
-        style: TextStyle(fontSize: 64),
-      ),
-    );
+    List<String> suggestions = searchResult
+        .where((searchResult) {
+          final result =
+              removeDiacritics(searchResult['title']['rendered'].toLowerCase());
+          final input = removeDiacritics(query.toLowerCase());
+          var keywords = null;
+          if (searchResult['keywords'] != null)
+            keywords = searchResult['keywords'].split(',');
+
+          if (input.contains('cultura')) {
+            return searchResult['parent'] == 2328;
+          } else if (keywords != null && keywords.contains(input)) {
+            return true;
+          } else if (input.contains('traseu') ||
+              input.contains('traseu turistic')) {
+            return searchResult['parent'] == 2321;
+          } else if (input.contains('cazare') || input.contains('pensiune')) {
+            return searchResult['parent'] == 2323;
+          }
+          return result.contains(input);
+        })
+        .map((e) => e['title']['rendered'] as String)
+        .toList();
+
+    return ListView.builder(
+        itemCount: suggestions.length,
+        itemBuilder: ((context, index) {
+          final suggestion = suggestions[index];
+
+          return Column(
+            children: [
+              ListTile(
+                title: Text(suggestion),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TuristicLocationPage(
+                        locationTitle: suggestion,
+                        data: datas,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              Divider(
+                height: 0.1,
+              ),
+            ],
+          );
+        }));
   }
 
   @override
@@ -534,35 +578,32 @@ class MySearchDelegate extends SearchDelegate {
         .map((e) => e['title']['rendered'] as String)
         .toList();
 
-    return Scrollbar(
-      thumbVisibility: true,
-      child: ListView.builder(
-          itemCount: suggestions.length,
-          itemBuilder: ((context, index) {
-            final suggestion = suggestions[index];
+    return ListView.builder(
+        itemCount: suggestions.length,
+        itemBuilder: ((context, index) {
+          final suggestion = suggestions[index];
 
-            return Column(
-              children: [
-                ListTile(
-                  title: Text(suggestion),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TuristicLocationPage(
-                          locationTitle: suggestion,
-                          data: datas,
-                        ),
+          return Column(
+            children: [
+              ListTile(
+                title: Text(suggestion),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TuristicLocationPage(
+                        locationTitle: suggestion,
+                        data: datas,
                       ),
-                    );
-                  },
-                ),
-                Divider(
-                  height: 0.1,
-                ),
-              ],
-            );
-          })),
-    );
+                    ),
+                  );
+                },
+              ),
+              Divider(
+                height: 0.1,
+              ),
+            ],
+          );
+        }));
   }
 }

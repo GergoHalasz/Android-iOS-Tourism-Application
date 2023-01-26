@@ -68,7 +68,7 @@ class _TuristicLocationPageState extends State<TuristicLocationPage> {
                     final prefs = await SharedPreferences.getInstance();
                     if (isFavourite) {
                       prefs.setString(pageData["title"]["rendered"],
-                          pageData["id"].toString());
+                         "isFavouritedLocation");
                     } else {
                       prefs.remove(pageData["title"]["rendered"]);
                     }

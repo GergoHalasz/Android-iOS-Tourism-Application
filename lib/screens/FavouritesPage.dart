@@ -21,8 +21,12 @@ class _FavouritesPageState extends State<FavouritesPage> {
     Future.delayed(Duration.zero, () async {
       final prefs = await SharedPreferences.getInstance();
       final keys = prefs.getKeys().toList();
+
+      final finalFav = keys.where((key) {
+        return prefs.get(key) == "isFavouritedLocation";
+      }).toList();
       setState(() {
-        favouritesList = keys;
+        favouritesList = finalFav;
       });
     });
 
