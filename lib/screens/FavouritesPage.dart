@@ -38,6 +38,15 @@ class _FavouritesPageState extends State<FavouritesPage> {
     return Theme(
       data: ThemeData.dark(),
       child: Scaffold(
+        bottomNavigationBar: Container(
+            height: 50,
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Image(
+                image: AssetImage('images/logos_aplicatie.png'),
+              ),
+            ),
+          ),
           appBar: AppBar(
             title: Text('Favorite'),
           ),

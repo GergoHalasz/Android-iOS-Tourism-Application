@@ -183,6 +183,15 @@ class _MyHomePageState extends State<MyHomePage> {
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark(),
       home: Scaffold(
+          bottomNavigationBar: Container(
+            height: 50,
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Image(
+                image: AssetImage('images/logos_aplicatie.png'),
+              ),
+            ),
+          ),
           appBar: AppBar(
             actions: [
               IconButton(
