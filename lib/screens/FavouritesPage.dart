@@ -38,17 +38,20 @@ class _FavouritesPageState extends State<FavouritesPage> {
     return Theme(
       data: ThemeData.dark(),
       child: Scaffold(
-        bottomNavigationBar: Container(
-            height: 50,
-            child: Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Image(
-                image: AssetImage('images/logos_aplicatie.png'),
-              ),
+          bottomNavigationBar: Container(
+            child: Image(
+              image: AssetImage('images/europai.jpeg'),
             ),
           ),
           appBar: AppBar(
-            title: Text('Favorite'),
+            iconTheme: IconThemeData(color: Colors.grey[800]),
+            backgroundColor: Colors.white,
+            centerTitle: true,
+            title: Center(
+                child: Image(
+              height: 40,
+              image: AssetImage("images/logos_aplicatie.png"),
+            )),
           ),
           body: ListView(children: [
             ...favouritesList.map((favourite) {

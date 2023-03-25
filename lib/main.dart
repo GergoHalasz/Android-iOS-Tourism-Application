@@ -184,17 +184,16 @@ class _MyHomePageState extends State<MyHomePage> {
       theme: ThemeData.dark(),
       home: Scaffold(
           bottomNavigationBar: Container(
-            height: 50,
-            child: Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Image(
-                image: AssetImage('images/logos_aplicatie.png'),
-              ),
+            child: Image(
+              image: AssetImage('images/europai.jpeg'),
             ),
           ),
           appBar: AppBar(
+            iconTheme: IconThemeData(color: Colors.grey[800]),
+            backgroundColor: Colors.white,
             actions: [
               IconButton(
+                  color: Colors.grey[800],
                   onPressed: () {
                     showSearch(
                         context: context,
@@ -204,20 +203,9 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
             centerTitle: true,
             title: Center(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Image(
-                    image: AssetImage('images/websiteIcon.png'),
-                    width: 130,
-                  ),
-                  Image(
-                    image: AssetImage('images/logo-sangeorzbai.png'),
-                    width: 50,
-                  ),
-                ],
-              ),
-            ),
+                child: Image(
+              image: AssetImage("images/logos_aplicatie.png"),
+            )),
           ),
           drawer: Drawer(
             child: SafeArea(

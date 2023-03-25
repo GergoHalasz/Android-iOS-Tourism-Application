@@ -58,41 +58,39 @@ class _TuristicLocationPageState extends State<TuristicLocationPage> {
     return Theme(
       data: ThemeData.dark(),
       child: Scaffold(
-        bottomNavigationBar: Container(
-            height: 50,
-            child: Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Image(
-                image: AssetImage('images/logos_aplicatie.png'),
-              ),
+          bottomNavigationBar: Container(
+            child: Image(
+              image: AssetImage('images/europai.jpeg'),
             ),
           ),
           appBar: AppBar(
-            actions: [
-              IconButton(
-                  onPressed: () async {
-                    setState(() {
-                      isFavourite = !isFavourite;
-                    });
-                    final prefs = await SharedPreferences.getInstance();
-                    if (isFavourite) {
-                      prefs.setString(pageData["title"]["rendered"],
-                         "isFavouritedLocation");
-                    } else {
-                      prefs.remove(pageData["title"]["rendered"]);
-                    }
-                  },
-                  icon: Icon(
-                    isFavourite ? Icons.favorite : Icons.favorite_border,
-                    color: Color.fromARGB(203, 255, 1, 1),
-                  ))
-            ],
-            centerTitle: true,
-            title: Image(
-              image: AssetImage('images/websiteIcon.png'),
-              width: 130,
-            ),
-          ),
+              iconTheme: IconThemeData(color: Colors.grey[800]),
+              backgroundColor: Colors.white,
+              actions: [
+                IconButton(
+                    onPressed: () async {
+                      setState(() {
+                        isFavourite = !isFavourite;
+                      });
+                      final prefs = await SharedPreferences.getInstance();
+                      if (isFavourite) {
+                        prefs.setString(pageData["title"]["rendered"],
+                            "isFavouritedLocation");
+                      } else {
+                        prefs.remove(pageData["title"]["rendered"]);
+                      }
+                    },
+                    icon: Icon(
+                      isFavourite ? Icons.favorite : Icons.favorite_border,
+                      color: Color.fromARGB(203, 255, 1, 1),
+                    ))
+              ],
+              centerTitle: true,
+              title: Center(
+                  child: Image(
+                height: 70,
+                image: AssetImage("images/logos_aplicatie.png"),
+              ))),
           body: SafeArea(
             child: SingleChildScrollView(
               child: Padding(
@@ -156,7 +154,8 @@ class _TuristicLocationPageState extends State<TuristicLocationPage> {
                                         context: context,
                                         builder: (context) =>
                                             CupertinoAlertDialog(
-                                              title: Text('Alegeti aplicatia care va afisa locatia.'),
+                                              title: Text(
+                                                  'Alegeti aplicatia care va afisa locatia.'),
                                               actions: [
                                                 CupertinoDialogAction(
                                                     child: Text('Google Maps'),

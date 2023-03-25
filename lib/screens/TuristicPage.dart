@@ -58,21 +58,19 @@ class _TuristicPageState extends State<TuristicPage> {
       data: ThemeData.dark(),
       child: Scaffold(
         bottomNavigationBar: Container(
-            height: 50,
-            child: Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Image(
-                image: AssetImage('images/logos_aplicatie.png'),
-              ),
+            child: Image(
+              image: AssetImage('images/europai.jpeg'),
             ),
           ),
         appBar: AppBar(
-          centerTitle: true,
-          title: Image(
-            image: AssetImage('images/websiteIcon.png'),
-            width: 130,
-          ),
-        ),
+            iconTheme: IconThemeData(color: Colors.grey[800]),
+            centerTitle: true,
+            backgroundColor: Colors.white,
+            title: Center(
+                child: Image(
+              height: 40,
+              image: AssetImage("images/logos_aplicatie.png"),
+            ))),
         body: DefaultTextStyle(
           style: TextStyle(fontFamily: "OpenSans", fontSize: 30),
           child: Column(
@@ -90,7 +88,8 @@ class _TuristicPageState extends State<TuristicPage> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => TuristicLocationPage(
+                                      builder: (context) =>
+                                          TuristicLocationPage(
                                         locationTitle: location['title'],
                                         data: widget.data,
                                       ),
@@ -99,7 +98,7 @@ class _TuristicPageState extends State<TuristicPage> {
                                 },
                                 leading: Icon(Icons.location_on),
                                 title: Text(location['title']),
-                                minLeadingWidth : 16,
+                                minLeadingWidth: 16,
                               ),
                               Divider(
                                 height: 0.1,
