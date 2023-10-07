@@ -3,6 +3,7 @@
 > A Flutter app for android & iOS devices that helps guiding tourists on a specific location.
 ## Download
 <a href="https://play.google.com/store/apps/details?id=com.sangeorzbai.turistic&hl=en&gl=US"><img src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" width="200"></img></a>
+<a href="https://apps.apple.com/sa/app/s%C3%A2ngeorz-b%C4%83i-turistic-app/id1660837541"><img src="https://www.freepnglogos.com/uploads/app-store-logo-png/download-on-the-app-store-logo-png-23.png" width="200"></img></a>
 ## Interface
 <kbd><img width="250" src=".\resources\1.jpg"></a></kbd>
 <kbd><img width="250" src=".\resources\2.jpg"></a></kbd>
@@ -15,4 +16,6 @@
 ## Contributors
 
 Application developed by me [Gergo Halasz](https://github.com/HalaszGergo123)
+
+
 
